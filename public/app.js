@@ -241,29 +241,71 @@ async function editBook(id){
   bookModal.showModal();
 }
 
+// REPLACE your current bookForm submit handler with this:
 bookForm.addEventListener('submit', async (e)=>{
   e.preventDefault();
-  if(!isAdmin()) return alert('Admins only');
-  const payload = {
+  if (!isAdmin()) return alert('Admins only');
+
+  // --- normalize + validate "code" (unique) ---
+  let codeVal = bkCode.value.trim();
+  if (codeVal) {
+    // UPPERCASE, spaces -> '-', remove invalid chars
+    codeVal = codeVal.toUpperCase().replace(/\s+/g,'-').replace(/[^A-Z0-9\-]/g,'');
+    // optional length rule (3~20 chars)
+    const ok = /^[A-Z0-9\-]{3,20}$/.test(codeVal);
+    if (!ok) {
+      alert('Code သတ်မှတ်ပုံ: A-Z, 0-9, "-" သာ / အရှည် 3~20');
+      return;
+    }
+  } else {
+    codeVal = null; // empty -> null
+  }
+
+  // --- base payload (NO createdAt here) ---
+  const base = {
     title: bkTitle.value.trim(),
     author: bkAuthor.value.trim(),
-    subject: bkSubject.value.trim()||null,
-    year: bkYear.value? Number(bkYear.value): null,
-    code: bkCode.value.trim()||null,
-    cover: bkCover.value.trim()||null,
-    pdfUrl: bkPdf.value.trim()||null,
-    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+    subject: bkSubject.value.trim() || null,
+    year: bkYear.value ? Number(bkYear.value) : null,
+    code: codeVal,
+    cover: bkCover.value.trim() || null,
+    pdfUrl: bkPdf.value.trim() || null,
   };
-  try{
-    if(bkId.value){
-    await _db.collection('books').doc(bkId.value).update({...payload, createdAt: undefined});
-    }else{
-      await _db.collection('books').add(payload);
+
+  try {
+    // --- unique check for code (when provided) ---
+    if (base.code) {
+      const dup = await _db.collection('books').where('code','==', base.code).get();
+      const conflict = dup.docs.some(d => d.id !== bkId.value);
+      if (conflict) {
+        alert(`Code "${base.code}" ကို တခြားစာအုပ် အသုံးပြုပြီးသားပါ ❌`);
+        return;
+      }
     }
+
+    if (bkId.value) {
+      // UPDATE: never send createdAt; only updatedAt
+      await _db.collection('books').doc(bkId.value).update({
+        ...base,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      });
+    } else {
+      // CREATE: set both createdAt & updatedAt
+      await _db.collection('books').add({
+        ...base,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      });
+    }
+
+    // reflect normalized code back into the input (optional UX)
+    if (codeVal) bkCode.value = codeVal;
+
     bookModal.close();
     await loadBooks();
-  }catch(err){ alert(err.message); }
+  } catch (err) {
+    alert(err.message);
+  }
 });
 
 // Delete
