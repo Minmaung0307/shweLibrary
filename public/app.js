@@ -120,6 +120,8 @@ _auth.onAuthStateChanged(async (u)=>{
     userRole.textContent = currentUser.role;
     openAuth.classList.add('hidden');
     renderAdminUI();
+    // 👉 admin ဖြစ်သွားရင် card တွေကို admin state နဲ့ပြန်ပုံနှိပ်
+    await loadBooks();
     await loadActivity();
     await loadRecommendations();
   }else{
@@ -127,9 +129,13 @@ _auth.onAuthStateChanged(async (u)=>{
     userArea.classList.add('hidden');
     openAuth.classList.remove('hidden');
     renderAdminUI();
+    // 👉 sign out လုပ်လို့ admin မဟုတ်တော့ရင် card တွေမှ Edit ကိုဖျောက်
+    await loadBooks();
     activityEl.innerHTML = '';
     recoList.innerHTML = '';
   }
+
+  applyRoleVisibility();
 });
 
 function isAdmin(){ return currentUser && currentUser.role === 'admin'; }
@@ -172,6 +178,11 @@ function bookCard(b){
   </article>`;
 }
 
+function applyRoleVisibility(){
+  document.querySelectorAll('.act-edit')
+    .forEach(el => el.classList.toggle('hidden', !(currentUser && currentUser.role==='admin')));
+}
+
 function renderBooks(){
   const qv = q.value.trim().toLowerCase();
   const subj = subjectFilter.value.trim().toLowerCase();
@@ -196,6 +207,8 @@ function renderBooks(){
     $('.act-edit',card)?.addEventListener('click',()=>editBook(id));
     $('.act-download',card).addEventListener('click',()=>downloadBook(id));
   });
+
+  applyRoleVisibility();
 }
 
 [q, subjectFilter, yearFilter, availabilityFilter].forEach(el=>el.addEventListener('input', ()=>{
