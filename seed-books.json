@@ -1,0 +1,5 @@
+[
+  {"title":"JavaScript: The Good Parts","author":"Douglas Crockford","subject":"Programming","year":2008,"code":"JS-GP","cover":"https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=1200&auto=format&fit=crop"},
+  {"title":"Clean Code","author":"Robert C. Martin","subject":"Programming","year":2008,"code":"CC-2008","cover":"https://images.unsplash.com/photo-1495446815901-a7297e633e8d?q=80&w=1200&auto=format&fit=crop"},
+  {"title":"Design of Everyday Things","author":"Don Norman","subject":"Design","year":2013,"code":"DOET-2013","cover":"https://images.unsplash.com/photo-1513475382585-d06e58bcb0ea?q=80&w=1200&auto=format&fit=crop"}
+]
