@@ -117,10 +117,16 @@ _auth.onAuthStateChanged(async (u)=>{
     userRole.textContent = currentUser.role;
     openAuth.classList.add('hidden');
     renderAdminUI();
+    // ✅ user ရှိမှ activity/reco ဖတ်ပါ
+   await loadActivity();
+   await loadRecommendations();
   }else{
     userArea.classList.add('hidden');
     openAuth.classList.remove('hidden');
     renderAdminUI();
+    // ✅ sign out အနေအထား => UI clear
+   activityEl.innerHTML = '';
+   recoList.innerHTML = '';
   }
 });
 
@@ -292,7 +298,15 @@ async function toggleBorrow(bookId){
 
 // ===== Activity Feed =====
 async function loadActivity(){
-  const snap = await _db.collection('borrows').orderBy('ts','desc').limit(20).get();
+  // const snap = await _db.collection('borrows').orderBy('ts','desc').limit(20).get();
+  let snap;
+  try {
+    snap = await _db.collection('borrows').orderBy('ts','desc').limit(20).get();
+  } catch (e) {
+    console.warn('loadActivity blocked by rules:', e.message);
+    activityEl.innerHTML = '';
+    return;
+  }
   const rows = snap.docs.map(d=>d.data());
   activityEl.innerHTML = rows.map(r=>`
     <li>
@@ -356,6 +370,6 @@ function _qhook(){
 // ===== Init =====
 (async function init(){
   await loadBooks();
-  await loadActivity();
-  await loadRecommendations();
+  // await loadActivity();
+  // await loadRecommendations();
 })();
