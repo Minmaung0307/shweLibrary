@@ -183,7 +183,6 @@ function renderBooks(){
     const okQ = !qv || text.includes(qv);
     const okS = !subj || (b.subject||'').toLowerCase() === subj;
     const okY = !yr || String(b.year||'') === yr;
-    // availability filter kept for compatibility but books are always available in download model
     const okA = !avail || avail==='available';
     return okQ && okS && okY && okA;
   });
@@ -199,7 +198,6 @@ function renderBooks(){
   });
 }
 
-// filter hooks
 [q, subjectFilter, yearFilter, availabilityFilter].forEach(el=>el.addEventListener('input', ()=>{
   clearTimeout(window.__ft);
   window.__ft = setTimeout(renderBooks, 150);
@@ -259,7 +257,7 @@ bookForm.addEventListener('submit', async (e)=>{
   };
   try{
     if(bkId.value){
-      await _db.collection('books').doc(bkId.value).update({...payload, createdAt: undefined});
+    await _db.collection('books').doc(bkId.value).update({...payload, createdAt: undefined});
     }else{
       await _db.collection('books').add(payload);
     }
@@ -285,17 +283,13 @@ async function downloadBook(bookId){
   if(!currentUser) return alert('Please sign in first.');
   const b = allBooks.find(x=>x.id===bookId);
   if(!b || !b.pdfUrl) return alert('No PDF URL for this book.');
-
-  // Trigger browser download/open
   const a = document.createElement('a');
   a.href = b.pdfUrl;
-  a.download = ''; // hint
+  a.download = '';
   a.target = '_blank';
   document.body.appendChild(a);
   a.click();
   a.remove();
-
-  // Log activity
   try {
     await _db.collection('borrows').add({
       bookId: bookId,

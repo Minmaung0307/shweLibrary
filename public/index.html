@@ -134,15 +134,15 @@
 
   <!-- PDF Reader Modal -->
   <dialog id="pdfModal" class="modal">
-    <div class="modal-card" style="width:min(1000px,96vw);height:min(88vh,900px);display:flex;flex-direction:column;gap:10px;">
-      <div class="modal-header">
+    <div class="modal-card modal-card--pdf">
+      <div class="modal-header modal-header--sticky">
         <h3 id="pdfTitle">Reader</h3>
-        <button class="ghost" id="closePdf" type="button">✕</button>
+        <div class="row">
+          <a id="openExternal" class="ghost link-btn" target="_blank" rel="noopener">Open in new tab</a>
+          <button class="ghost" id="closePdf" type="button">✕</button>
+        </div>
       </div>
-      <iframe id="pdfFrame" title="PDF Reader" allow="fullscreen" allowfullscreen style="flex:1;border:1px solid rgba(255,255,255,.1);border-radius:12px;"></iframe>
-      <div class="row end">
-        <a id="openExternal" class="ghost" target="_blank" rel="noopener">Open in new tab</a>
-      </div>
+      <iframe id="pdfFrame" title="PDF Reader" allow="fullscreen" allowfullscreen></iframe>
     </div>
   </dialog>
 

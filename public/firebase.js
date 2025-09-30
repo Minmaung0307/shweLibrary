@@ -11,8 +11,6 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
-// Avoid QUIC/WebChannel flakiness on some networks by forcing long polling
 db.settings({ experimentalForceLongPolling: true, useFetchStreams: false });
-
 window._auth = firebase.auth();
 window._db = db;

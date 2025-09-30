@@ -22,10 +22,10 @@ body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;backg
 .input{width:100%;padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.08);background:#0d1430;color:var(--text);outline:none}
 .input:focus{box-shadow:var(--ring);border-color:rgba(106,167,255,.45)}
 
-button{cursor:pointer;border:0;border-radius:12px;padding:10px 14px;font-weight:600}
-button.primary{background:linear-gradient(135deg,var(--brand),#74ffd1);color:#06122a}
-button.ghost{background:transparent;color:var(--text);border:1px solid rgba(255,255,255,.12)}
-button.w-full{width:100%}
+button, .link-btn{cursor:pointer;border:0;border-radius:12px;padding:10px 14px;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
+.primary{background:linear-gradient(135deg,var(--brand),#74ffd1);color:#06122a}
+.ghost{background:transparent;color:var(--text);border:1px solid rgba(255,255,255,.12)}
+.w-full{width:100%}
 button:disabled{opacity:.6;cursor:not-allowed}
 .upload{display:inline-flex;justify-content:center;align-items:center;padding:8px 10px;border:1px dashed rgba(255,255,255,.2);border-radius:12px;cursor:pointer}
 
@@ -42,9 +42,6 @@ button:disabled{opacity:.6;cursor:not-allowed}
 .card .tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
 .tag{background:rgba(255,255,255,.06);padding:2px 8px;border-radius:999px;font-size:12px;color:#cbd7ff}
 .card .footer{display:flex;gap:8px;padding:12px 14px 16px}
-.status{font-size:12px;border-radius:999px;padding:2px 8px}
-.status.available{background:rgba(107,255,168,.18);color:#b6ffe0}
-.status.borrowed{background:rgba(255,138,138,.2);color:#ffd1d1}
 
 .activity{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px}
 .activity li{display:flex;justify-content:space-between;align-items:center;background:#0c1533;border:1px solid rgba(255,255,255,.06);padding:10px;border-radius:12px}
@@ -56,8 +53,9 @@ button:disabled{opacity:.6;cursor:not-allowed}
 
 .modal{border:0;padding:0;background:transparent}
 .modal::backdrop{background:rgba(0,0,0,.55)}
-.modal-card{width:min(720px,92vw);background:#0c1430;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:16px}
+.modal-card{width:min(720px,92vw);background:#0c1430;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:16px;color:var(--text)}
 .modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.modal-header h3{margin:0;font-size:18px}
 .tabs{display:flex;gap:6px;margin:8px 0 12px}
 .tab{padding:8px 10px;border-radius:999px;border:1px solid transparent;background:transparent;color:var(--text)}
 .tab.active{border-color:rgba(255,255,255,.16);background:#0b1230}
@@ -68,6 +66,26 @@ button:disabled{opacity:.6;cursor:not-allowed}
 .hint{opacity:.7;font-size:12px;margin-top:8px}
 
 .user-area{display:flex;align-items:center;gap:10px}
+
+/* ===== PDF Modal Big & Visible ===== */
+#pdfModal .modal-card--pdf{
+  width:95vw; height:95vh;
+  display:flex; flex-direction:column;
+  gap:10px;
+}
+#pdfModal .modal-header--sticky{
+  position:sticky; top:0;
+  background:#0c1430; z-index:2;
+  padding-bottom:10px; margin-bottom:0;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+#pdfFrame{
+  flex:1;
+  width:100%;
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:12px;
+  background:#0a132e;
+}
 
 @media (max-width: 980px){
   .layout{grid-template-columns:1fr}
