@@ -1,6 +1,4 @@
-// 🔧 Rename this file to firebase.js and fill in your own config values from Firebase Console
-// Project Settings ➜ General ➜ Your apps ➜ SDK setup and configuration (CDN)
-
+// Fill your own Firebase config here
 const firebaseConfig = {
   apiKey: "AIzaSyBn6f6vIq3pKTsMlLYVlC-bqhxxsecP3IM",
   authDomain: "shwelibrary.firebaseapp.com",
@@ -11,9 +9,6 @@ const firebaseConfig = {
   measurementId: "G-5052Y9PC0P"
 };
 
-// Initialize (Compat SDK to keep code simpler in one file)
 firebase.initializeApp(firebaseConfig);
-
-// Expose handles
 window._auth = firebase.auth();
 window._db = firebase.firestore();

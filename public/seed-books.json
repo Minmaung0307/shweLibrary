@@ -1,5 +1,29 @@
 [
-  {"title":"JavaScript: The Good Parts","author":"Douglas Crockford","subject":"Programming","year":2008,"code":"JS-GP","cover":"https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=1200&auto=format&fit=crop"},
-  {"title":"Clean Code","author":"Robert C. Martin","subject":"Programming","year":2008,"code":"CC-2008","cover":"https://images.unsplash.com/photo-1495446815901-a7297e633e8d?q=80&w=1200&auto=format&fit=crop"},
-  {"title":"Design of Everyday Things","author":"Don Norman","subject":"Design","year":2013,"code":"DOET-2013","cover":"https://images.unsplash.com/photo-1513475382585-d06e58bcb0ea?q=80&w=1200&auto=format&fit=crop"}
+  {
+    "title": "Alice's Adventures in Wonderland",
+    "author": "Lewis Carroll",
+    "subject": "Fiction",
+    "year": 1865,
+    "code": "ALICE-1865",
+    "cover": "https://images.unsplash.com/photo-1521587760476-6c12a4b040da?q=80&w=1200&auto=format&fit=crop",
+    "pdfUrl": "https://www.gutenberg.org/files/11/11-pdf.pdf"
+  },
+  {
+    "title": "Dummy PDF (W3C)",
+    "author": "W3C",
+    "subject": "Sample",
+    "year": 2020,
+    "code": "W3C-DUMMY",
+    "cover": "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?q=80&w=1200&auto=format&fit=crop",
+    "pdfUrl": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+  },
+  {
+    "title": "Attention Is All You Need",
+    "author": "Vaswani et al.",
+    "subject": "AI/ML",
+    "year": 2017,
+    "code": "AIAYN-2017",
+    "cover": "https://images.unsplash.com/photo-1518779578993-ec3579fee39f?q=80&w=1200&auto=format&fit=crop",
+    "pdfUrl": "https://arxiv.org/pdf/1706.03762.pdf"
+  }
 ]

@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>ShweLibrary</title>
-  <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="styles.css" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
@@ -55,6 +55,7 @@
       <div class="section admin-only hidden">
         <div class="section-title">Admin</div>
         <button id="openNewBook" class="primary w-full">➕ Add New Book</button>
+        <button id="addDemo" class="ghost w-full">✨ Add Demo Books</button>
         <button id="exportJson" class="ghost w-full">⬇️ Export JSON</button>
         <label class="upload w-full">
           ⬆️ Import JSON
@@ -121,6 +122,7 @@
         <input class="input" id="bkYear" type="number" placeholder="Year" />
         <input class="input" id="bkCode" placeholder="Code (unique)" />
         <input class="input" id="bkCover" placeholder="Cover URL (optional)" />
+        <input class="input" id="bkPdf" placeholder="PDF URL (optional)" />
       </div>
       <div class="row end">
         <button class="ghost" type="button" id="delBookBtn">Delete</button>
@@ -130,10 +132,24 @@
     </form>
   </dialog>
 
+  <!-- PDF Reader Modal -->
+  <dialog id="pdfModal" class="modal">
+    <div class="modal-card" style="width:min(1000px,96vw);height:min(88vh,900px);display:flex;flex-direction:column;gap:10px;">
+      <div class="modal-header">
+        <h3 id="pdfTitle">Reader</h3>
+        <button class="ghost" id="closePdf" type="button">✕</button>
+      </div>
+      <iframe id="pdfFrame" title="PDF Reader" style="flex:1;border:1px solid rgba(255,255,255,.1);border-radius:12px;"></iframe>
+      <div class="row end">
+        <a id="openExternal" class="ghost" target="_blank" rel="noopener">Open in new tab</a>
+      </div>
+    </div>
+  </dialog>
+
   <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore-compat.js"></script>
-  <script src="/firebase.js"></script>
-  <script src="/app.js"></script>
+  <script src="firebase.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
