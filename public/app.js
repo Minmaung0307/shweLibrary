@@ -6,15 +6,15 @@ const fmt = (d) => new Intl.DateTimeFormat([], {dateStyle:'medium', timeStyle:'s
 
 // ===== State =====
 let currentUser = null; // { uid, displayName, email, role }
-let allBooks = [];      // books collection cache
+let allBooks = [];      // items cache
 let subjects = new Set();
 let years = new Set();
 
 // ===== UI Refs =====
 const q = byId('q');
+const typeFilter = byId('typeFilter');
 const subjectFilter = byId('subjectFilter');
 const yearFilter = byId('yearFilter');
-const availabilityFilter = byId('availabilityFilter');
 const bookCards = byId('bookCards');
 const countBooks = byId('countBooks');
 const activityEl = byId('activity');
@@ -49,14 +49,15 @@ const bkAuthor = byId('bkAuthor');
 const bkSubject = byId('bkSubject');
 const bkYear = byId('bkYear');
 const bkCode = byId('bkCode');
+const bkType = byId('bkType');
 const bkCover = byId('bkCover');
-const bkPdf = byId('bkPdf');
+const bkMedia = byId('bkMedia');
 
 const exportJson = byId('exportJson');
 const importJson = byId('importJson');
 
 const pdfModal = byId('pdfModal');
-const pdfFrame = byId('pdfFrame');
+const playerArea = byId('playerArea');
 const pdfTitle = byId('pdfTitle');
 const closePdf = byId('closePdf');
 const openExternal = byId('openExternal');
@@ -120,7 +121,6 @@ _auth.onAuthStateChanged(async (u)=>{
     userRole.textContent = currentUser.role;
     openAuth.classList.add('hidden');
     renderAdminUI();
-    // 👉 admin ဖြစ်သွားရင် card တွေကို admin state နဲ့ပြန်ပုံနှိပ်
     await loadBooks();
     await loadActivity();
     await loadRecommendations();
@@ -129,13 +129,10 @@ _auth.onAuthStateChanged(async (u)=>{
     userArea.classList.add('hidden');
     openAuth.classList.remove('hidden');
     renderAdminUI();
-    // 👉 sign out လုပ်လို့ admin မဟုတ်တော့ရင် card တွေမှ Edit ကိုဖျောက်
     await loadBooks();
     activityEl.innerHTML = '';
     recoList.innerHTML = '';
   }
-
-  applyRoleVisibility();
 });
 
 function isAdmin(){ return currentUser && currentUser.role === 'admin'; }
@@ -143,22 +140,38 @@ function renderAdminUI(){
   $$('.admin-only').forEach(el=> el.classList.toggle('hidden', !isAdmin()));
 }
 
-// ===== Firestore: Books =====
+// ===== Firestore: Items =====
 async function loadBooks(){
-  const snap = await _db.collection('books').orderBy('createdAt','desc').limit(200).get();
-  allBooks = snap.docs.map(d=>({id:d.id, ...d.data()}));
+  const snap = await _db.collection('books').orderBy('createdAt','desc').limit(300).get();
+  allBooks = snap.docs.map(d=>({id:d.id, ...massageLegacy(d.data())}));
   subjects = new Set(allBooks.map(b=>b.subject).filter(Boolean));
   years = new Set(allBooks.map(b=>b.year).filter(Boolean));
+
   subjectFilter.innerHTML = '<option value="">All Subjects</option>' +
     Array.from(subjects).sort().map(s=>`<option>${s}</option>`).join('');
   yearFilter.innerHTML = '<option value="">All Years</option>' +
     Array.from(years).sort((a,b)=>b-a).map(y=>`<option>${y}</option>`).join('');
+
   renderBooks();
+}
+
+// Backward-compat for older docs
+function massageLegacy(d){
+  const mediaType = d.mediaType || (d.pdfUrl ? 'book' : 'book');
+  const mediaUrl = d.mediaUrl || d.pdfUrl || null;
+  return {...d, mediaType, mediaUrl};
+}
+
+function actionLabels(t){
+  if(t==='audio') return {primary:'Listen', secondary:'Download'};
+  if(t==='video') return {primary:'Watch', secondary:'Download'};
+  return {primary:'Read', secondary:'Download'};
 }
 
 function bookCard(b){
   const cover = b.cover || 'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=1200&q=60&auto=format&fit=crop';
-  const canRead = !!b.pdfUrl;
+  const labels = actionLabels(b.mediaType);
+  const canOpen = !!b.mediaUrl;
   return `
   <article class="card" data-id="${b.id}">
     <div class="cover"><img alt="cover" src="${cover}" loading="lazy"></div>
@@ -168,34 +181,30 @@ function bookCard(b){
       <div class="tags">
         ${b.subject?`<span class="tag">${b.subject}</span>`:''}
         ${b.code?`<span class="tag">#${b.code}</span>`:''}
+        ${b.mediaType?`<span class="tag">${b.mediaType.toUpperCase()}</span>`:''}
       </div>
     </div>
     <div class="footer">
-      <button class="primary act-download" ${canRead?'':'disabled'}>Download</button>
-      <button class="ghost act-read" ${canRead?'':'disabled'}>Read</button>
+      <button class="primary act-open" ${canOpen?'':'disabled'}>${labels.primary}</button>
+      <button class="ghost act-download" ${canOpen?'':'disabled'}>${labels.secondary}</button>
       <button class="ghost act-edit ${isAdmin()?'':'hidden'}">Edit</button>
     </div>
   </article>`;
-}
-
-function applyRoleVisibility(){
-  document.querySelectorAll('.act-edit')
-    .forEach(el => el.classList.toggle('hidden', !(currentUser && currentUser.role==='admin')));
 }
 
 function renderBooks(){
   const qv = q.value.trim().toLowerCase();
   const subj = subjectFilter.value.trim().toLowerCase();
   const yr = yearFilter.value.trim();
-  const avail = availabilityFilter.value;
+  const type = typeFilter.value.trim();
 
   const list = allBooks.filter(b=>{
     const text = `${b.title} ${b.author} ${b.subject||''} ${b.code||''}`.toLowerCase();
     const okQ = !qv || text.includes(qv);
     const okS = !subj || (b.subject||'').toLowerCase() === subj;
     const okY = !yr || String(b.year||'') === yr;
-    const okA = !avail || avail==='available';
-    return okQ && okS && okY && okA;
+    const okT = !type || (b.mediaType||'book') === type;
+    return okQ && okS && okY && okT;
   });
 
   countBooks.textContent = list.length;
@@ -203,129 +212,91 @@ function renderBooks(){
 
   $$('.card').forEach(card=>{
     const id = card.dataset.id;
-    $('.act-read',card).addEventListener('click',()=>openBook(id));
+    $('.act-open',card).addEventListener('click',()=>openItem(id));
+    $('.act-download',card).addEventListener('click',()=>downloadItem(id));
     $('.act-edit',card)?.addEventListener('click',()=>editBook(id));
-    $('.act-download',card).addEventListener('click',()=>downloadBook(id));
   });
-
-  applyRoleVisibility();
 }
 
-[q, subjectFilter, yearFilter, availabilityFilter].forEach(el=>el.addEventListener('input', ()=>{
+[q, subjectFilter, yearFilter, typeFilter].forEach(el=>el.addEventListener('input', ()=>{
   clearTimeout(window.__ft);
   window.__ft = setTimeout(renderBooks, 150);
 }));
 
-// ===== Add / Edit Book =====
+// ===== Add / Edit Item =====
 openNewBook?.addEventListener('click',()=>{
-  bookModalTitle.textContent = 'New Book';
-  bkId.value=''; bkTitle.value=''; bkAuthor.value=''; bkSubject.value=''; bkYear.value=''; bkCode.value=''; bkCover.value=''; bkPdf.value='';
+  bookModalTitle.textContent = 'New Item';
+  bkId.value=''; bkTitle.value=''; bkAuthor.value=''; bkSubject.value=''; bkYear.value=''; bkCode.value=''; bkType.value='book'; bkCover.value=''; bkMedia.value='';
   delBookBtn.style.display='none';
   bookModal.showModal();
 });
 
 closeBook?.addEventListener('click',()=> bookModal.close());
 
-async function openBook(id){
-  const b = allBooks.find(x=>x.id===id);
-  if(!b) return;
-  if(b.pdfUrl){
-    pdfTitle.textContent = b.title;
-    pdfFrame.src = b.pdfUrl;
-    openExternal.href = b.pdfUrl;
-    pdfModal.showModal();
-  }else{
-    alert(`${b.title}\n\nAuthor: ${b.author}\nYear: ${b.year||'—'}\nSubject: ${b.subject||'-'}\nCode: ${b.code||'-'}`);
-  }
-}
-
-closePdf?.addEventListener('click',()=>{
-  pdfFrame.src = 'about:blank';
-  pdfModal.close();
-});
-
 async function editBook(id){
   if(!isAdmin()) return;
   const b = allBooks.find(x=>x.id===id);
   if(!b) return;
-  bookModalTitle.textContent = 'Edit Book';
-  bkId.value=b.id; bkTitle.value=b.title; bkAuthor.value=b.author; bkSubject.value=b.subject||''; bkYear.value=b.year||''; bkCode.value=b.code||''; bkCover.value=b.cover||''; bkPdf.value=b.pdfUrl||'';
+  bookModalTitle.textContent = 'Edit Item';
+  bkId.value=b.id; bkTitle.value=b.title; bkAuthor.value=b.author; bkSubject.value=b.subject||''; bkYear.value=b.year||''; bkCode.value=b.code||''; bkType.value=b.mediaType||'book'; bkCover.value=b.cover||''; bkMedia.value=b.mediaUrl||b.pdfUrl||'';
   delBookBtn.style.display='inline-flex';
   bookModal.showModal();
 }
 
-// REPLACE your current bookForm submit handler with this:
+// submit handler with code normalization & uniqueness
 bookForm.addEventListener('submit', async (e)=>{
   e.preventDefault();
   if (!isAdmin()) return alert('Admins only');
 
-  // --- normalize + validate "code" (unique) ---
   let codeVal = bkCode.value.trim();
   if (codeVal) {
-    // UPPERCASE, spaces -> '-', remove invalid chars
     codeVal = codeVal.toUpperCase().replace(/\s+/g,'-').replace(/[^A-Z0-9\-]/g,'');
-    // optional length rule (3~20 chars)
     const ok = /^[A-Z0-9\-]{3,20}$/.test(codeVal);
-    if (!ok) {
-      alert('Code သတ်မှတ်ပုံ: A-Z, 0-9, "-" သာ / အရှည် 3~20');
-      return;
-    }
-  } else {
-    codeVal = null; // empty -> null
-  }
+    if (!ok) { alert('Code သတ်မှတ်ပုံ: A-Z, 0-9, "-" သာ / အရှည် 3~20'); return; }
+  } else codeVal = null;
 
-  // --- base payload (NO createdAt here) ---
   const base = {
     title: bkTitle.value.trim(),
     author: bkAuthor.value.trim(),
     subject: bkSubject.value.trim() || null,
     year: bkYear.value ? Number(bkYear.value) : null,
     code: codeVal,
+    mediaType: bkType.value || 'book',
     cover: bkCover.value.trim() || null,
-    pdfUrl: bkPdf.value.trim() || null,
+    mediaUrl: bkMedia.value.trim() || null,
   };
+  base.pdfUrl = (base.mediaType==='book') ? (base.mediaUrl || null) : null;
 
   try {
-    // --- unique check for code (when provided) ---
     if (base.code) {
       const dup = await _db.collection('books').where('code','==', base.code).get();
       const conflict = dup.docs.some(d => d.id !== bkId.value);
-      if (conflict) {
-        alert(`Code "${base.code}" ကို တခြားစာအုပ် အသုံးပြုပြီးသားပါ ❌`);
-        return;
-      }
+      if (conflict) { alert(`Code "${base.code}" ကို တခြား item အသုံးပြုပြီးသားပါ ❌`); return; }
     }
 
     if (bkId.value) {
-      // UPDATE: never send createdAt; only updatedAt
       await _db.collection('books').doc(bkId.value).update({
         ...base,
         updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
       });
     } else {
-      // CREATE: set both createdAt & updatedAt
       await _db.collection('books').add({
         ...base,
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
         updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
       });
     }
-
-    // reflect normalized code back into the input (optional UX)
     if (codeVal) bkCode.value = codeVal;
-
     bookModal.close();
     await loadBooks();
-  } catch (err) {
-    alert(err.message);
-  }
+  } catch (err) { alert(err.message); }
 });
 
 // Delete
 delBookBtn.addEventListener('click', async ()=>{
   if(!isAdmin()) return;
   if(!bkId.value) return;
-  if(!confirm('Delete this book?')) return;
+  if(!confirm('Delete this item?')) return;
   try{
     await _db.collection('books').doc(bkId.value).delete();
     bookModal.close();
@@ -333,67 +304,108 @@ delBookBtn.addEventListener('click', async ()=>{
   }catch(err){ alert(err.message); }
 });
 
-// ===== Download (logs activity) =====
-async function downloadBook(bookId){
+// ===== Open / Download =====
+async function openItem(id){
+  const b = allBooks.find(x=>x.id===id);
+  if(!b || !b.mediaUrl) return;
+  pdfTitle.textContent = b.title;
+  openExternal.href = b.mediaUrl;
+
+  playerArea.innerHTML = '';
+  const t = b.mediaType || 'book';
+  if (t==='book') {
+    const iframe = document.createElement('iframe');
+    iframe.title = 'PDF Reader';
+    iframe.allow = 'fullscreen'; iframe.setAttribute('allowfullscreen','');
+    iframe.src = b.mediaUrl;
+    playerArea.appendChild(iframe);
+  } else if (t==='audio') {
+    const audio = document.createElement('audio');
+    audio.controls = true;
+    audio.src = b.mediaUrl;
+    playerArea.appendChild(audio);
+  } else if (t==='video') {
+    const video = document.createElement('video');
+    video.controls = true; video.playsInline = true;
+    video.src = b.mediaUrl;
+    playerArea.appendChild(video);
+  }
+  pdfModal.showModal();
+
+  if(currentUser){
+    const action = t==='book' ? 'read' : (t==='audio' ? 'listen' : 'watch');
+    try {
+      await _db.collection('borrows').add({
+        bookId: b.id,
+        bookTitle: b.title,
+        userId: currentUser.uid,
+        userName: currentUser.displayName,
+        mediaType: t,
+        action,
+        ts: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      await Promise.all([loadActivity(), loadRecommendations()]);
+    } catch(e){}
+  }
+}
+
+closePdf?.addEventListener('click',()=>{
+  playerArea.innerHTML = '';
+  pdfModal.close();
+});
+
+async function downloadItem(id){
   if(!currentUser) return alert('Please sign in first.');
-  const b = allBooks.find(x=>x.id===bookId);
-  if(!b || !b.pdfUrl) return alert('No PDF URL for this book.');
+  const b = allBooks.find(x=>x.id===id);
+  if(!b || !b.mediaUrl) return alert('No media URL for this item.');
   const a = document.createElement('a');
-  a.href = b.pdfUrl;
-  a.download = '';
-  a.target = '_blank';
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
+  a.href = b.mediaUrl; a.target = '_blank'; a.download='';
+  document.body.appendChild(a); a.click(); a.remove();
   try {
     await _db.collection('borrows').add({
-      bookId: bookId,
+      bookId: b.id,
       bookTitle: b.title,
       userId: currentUser.uid,
       userName: currentUser.displayName,
+      mediaType: b.mediaType || 'book',
       action: 'download',
       ts: firebase.firestore.FieldValue.serverTimestamp()
     });
     await Promise.all([loadActivity(), loadRecommendations()]);
-  } catch(e){
-    console.warn('activity log failed:', e.message);
-  }
+  } catch(e){}
 }
 
 // ===== Activity Feed =====
 async function loadActivity(){
   try{
-    const snap = await _db.collection('borrows').orderBy('ts','desc').limit(20).get();
+    const snap = await _db.collection('borrows').orderBy('ts','desc').limit(30).get();
     const rows = snap.docs.map(d=>d.data());
     activityEl.innerHTML = rows.map(r=>`
       <li>
-        <span class="who">${r.userName}</span>
-        <span class="what">${r.action}</span>
-        <strong>${r.bookTitle}</strong>
+        <span class="who">${r.userName||'Someone'}</span>
+        <span class="what">${r.action}${r.mediaType? ' • '+r.mediaType : ''}</span>
+        <strong>${r.bookTitle||''}</strong>
         <span class="when">${r.ts?.toDate ? fmt(r.ts.toDate()) : ''}</span>
       </li>`).join('');
-  }catch(e){
-    activityEl.innerHTML = '';
-  }
+  }catch(e){ activityEl.innerHTML = ''; }
 }
 
-// ===== Recommendations (Top downloads) =====
+// ===== Recommendations =====
 async function loadRecommendations(){
   try{
-    const snap = await _db.collection('borrows').orderBy('ts','desc').limit(500).get();
+    const snap = await _db.collection('borrows').orderBy('ts','desc').limit(1000).get();
     const count = new Map();
     snap.docs.forEach(d=>{
       const x = d.data();
-      if(x.action === 'download'){
-        const key = x.bookTitle;
-        count.set(key, (count.get(key)||0)+1);
-      }
+      const key = `${x.bookTitle}||${x.mediaType||'book'}`;
+      count.set(key, (count.get(key)||0)+1);
     });
     const top = Array.from(count.entries()).sort((a,b)=>b[1]-a[1]).slice(0,5);
-    recoList.innerHTML = top.map(([title,n])=>`<li>${title} <span class="badge">${n}</span></li>`).join('');
-  }catch(e){
-    recoList.innerHTML = '';
-  }
+    recoList.innerHTML = top.map(([k,n])=>{
+      const [title, t] = k.split('||');
+      return `<li>${title} <span class="badge">${t}</span> <span class="badge">${n}</span></li>`;
+    }).join('');
+  }catch(e){ recoList.innerHTML = ''; }
 }
 
 // ===== Import / Export =====
@@ -402,7 +414,7 @@ exportJson?.addEventListener('click',()=>{
   const blob = new Blob([data],{type:'application/json'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href=url; a.download='books-export.json'; a.click();
+  a.href=url; a.download='library-export.json'; a.click();
   URL.revokeObjectURL(url);
 });
 
@@ -414,9 +426,11 @@ importJson?.addEventListener('change', async (e)=>{
   const batch = _db.batch();
   arr.forEach(b=>{
     const ref = _db.collection('books').doc(b.id||undefined);
+    const mediaType = b.mediaType || (b.pdfUrl ? 'book' : 'book');
+    const mediaUrl = b.mediaUrl || b.pdfUrl || null;
     batch.set(ref, {
       title:b.title, author:b.author, subject:b.subject||null, year:b.year||null, code:b.code||null, cover:b.cover||null,
-      pdfUrl:b.pdfUrl||null,
+      mediaType, mediaUrl, pdfUrl: mediaType==='book' ? mediaUrl : null,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(), updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     }, {merge:true});
   });
@@ -430,30 +444,30 @@ addDemo?.addEventListener('click', async ()=>{
   const demo = [
     {title:"Alice's Adventures in Wonderland", author:"Lewis Carroll", subject:"Fiction", year:1865, code:"ALICE-1865",
      cover:"https://images.unsplash.com/photo-1521587760476-6c12a4b040da?q=80&w=1200&auto=format&fit=crop",
-     pdfUrl:"https://www.gutenberg.org/files/11/11-pdf.pdf"},
-    {title:"Dummy PDF (W3C)", author:"W3C", subject:"Sample", year:2020, code:"W3C-DUMMY",
-     cover:"https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?q=80&w=1200&auto=format&fit=crop",
-     pdfUrl:"https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"},
-    {title:"Attention Is All You Need", author:"Vaswani et al.", subject:"AI/ML", year:2017, code:"AIAYN-2017",
-     cover:"https://images.unsplash.com/photo-1518779578993-ec3579fee39f?q=80&w=1200&auto=format&fit=crop",
-     pdfUrl:"https://arxiv.org/pdf/1706.03762.pdf"}
+     mediaType:"book", mediaUrl:"https://www.gutenberg.org/files/11/11-pdf.pdf"},
+    {title:"SoundHelix Song 1", author:"SoundHelix", subject:"Music", year:2010, code:"AUDIO-SH1",
+     cover:"https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=1200&auto=format&fit=crop",
+     mediaType:"audio", mediaUrl:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"},
+    {title:"Big Buck Bunny (clip)", author:"Blender Foundation", subject:"Animation", year:2008, code:"VIDEO-BBB",
+     cover:"https://images.unsplash.com/photo-1529101091764-c3526daf38fe?q=80&w=1200&auto=format&fit=crop",
+     mediaType:"video", mediaUrl:"https://www.w3schools.com/html/mov_bbb.mp4"}
   ];
   const batch = _db.batch();
   demo.forEach(d => {
     const ref = _db.collection('books').doc();
     batch.set(ref, {
       ...d,
+      pdfUrl: d.mediaType==='book' ? d.mediaUrl : null,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     });
   });
   await batch.commit();
   await loadBooks();
-  alert('Demo books added.');
+  alert('Demo items (book/audio/video) added.');
 });
 
 // ===== Init =====
 (async function init(){
   await loadBooks(); // public
-  // activity/reco load when signed in
 })();

@@ -33,16 +33,17 @@
         <div class="section-title">Search</div>
         <input id="q" class="input" placeholder="Search by title, author, subject..." />
         <div class="filters">
+          <select id="typeFilter" class="input">
+            <option value="">All Types</option>
+            <option value="book">Books (PDF)</option>
+            <option value="audio">Audio</option>
+            <option value="video">Video</option>
+          </select>
           <select id="subjectFilter" class="input">
             <option value="">All Subjects</option>
           </select>
           <select id="yearFilter" class="input">
             <option value="">All Years</option>
-          </select>
-          <select id="availabilityFilter" class="input">
-            <option value="">Any Availability</option>
-            <option value="available">Available</option>
-            <option value="borrowed">Borrowed</option>
           </select>
         </div>
       </div>
@@ -54,8 +55,8 @@
 
       <div class="section admin-only hidden">
         <div class="section-title">Admin</div>
-        <button id="openNewBook" class="primary w-full">➕ Add New Book</button>
-        <button id="addDemo" class="ghost w-full">✨ Add Demo Books</button>
+        <button id="openNewBook" class="primary w-full">➕ Add New Item</button>
+        <button id="addDemo" class="ghost w-full">✨ Add Demo Items</button>
         <button id="exportJson" class="ghost w-full">⬇️ Export JSON</button>
         <label class="upload w-full">
           ⬆️ Import JSON
@@ -66,7 +67,7 @@
 
     <main class="content">
       <div class="toolbar">
-        <div class="count"><span id="countBooks">0</span> books</div>
+        <div class="count"><span id="countBooks">0</span> items</div>
       </div>
 
       <div class="cards" id="bookCards"></div>
@@ -108,24 +109,28 @@
     </form>
   </dialog>
 
-  <!-- New/Edit Book Modal -->
+  <!-- New/Edit Item Modal -->
   <dialog id="bookModal" class="modal">
     <form method="dialog" class="modal-card" id="bookForm">
       <div class="modal-header">
-        <h3 id="bookModalTitle">New Book</h3>
+        <h3 id="bookModalTitle">New Item</h3>
         <button class="ghost" id="closeBook" type="button">✕</button>
       </div>
       <div class="grid2">
         <input class="input" id="bkTitle" placeholder="Title" required />
-        <input class="input" id="bkAuthor" placeholder="Author" required />
+        <input class="input" id="bkAuthor" placeholder="Author / Artist" required />
         <input class="input" id="bkSubject" placeholder="Subject" />
         <input class="input" id="bkYear" type="number" placeholder="Year" />
         <input class="input" id="bkCode" placeholder="Code (unique)" />
-        <input class="input" id="bkCover" placeholder="Cover URL (optional)" />
-        <input class="input" id="bkPdf" placeholder="PDF URL (optional)" />
+        <select class="input" id="bkType">
+          <option value="book">Book (PDF)</option>
+          <option value="audio">Audio</option>
+          <option value="video">Video</option>
+        </select>
+        <input class="input" id="bkCover" placeholder="Cover/Poster URL (optional)" />
+        <input class="input" id="bkMedia" placeholder="Media URL (PDF/MP3/MP4…)" />
       </div>
       <div class="row end">
-        <button class="ghost act-edit">Edit</button>
         <button class="ghost" type="button" id="delBookBtn">Delete</button>
         <button class="primary" id="saveBookBtn">Save</button>
       </div>
@@ -133,7 +138,7 @@
     </form>
   </dialog>
 
-  <!-- PDF Reader Modal -->
+  <!-- Reader Modal (PDF/Audio/Video) -->
   <dialog id="pdfModal" class="modal">
     <div class="modal-card modal-card--pdf">
       <div class="modal-header modal-header--sticky">
@@ -143,7 +148,9 @@
           <button class="ghost" id="closePdf" type="button">✕</button>
         </div>
       </div>
-      <iframe id="pdfFrame" title="PDF Reader" allow="fullscreen" allowfullscreen></iframe>
+      <div id="playerArea" class="player-area">
+        <!-- injected: iframe/audio/video -->
+      </div>
     </div>
   </dialog>
 

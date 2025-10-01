@@ -1,0 +1,32 @@
+[
+  {
+    "title": "Alice's Adventures in Wonderland",
+    "author": "Lewis Carroll",
+    "subject": "Fiction",
+    "year": 1865,
+    "code": "ALICE-1865",
+    "cover": "https://images.unsplash.com/photo-1521587760476-6c12a4b040da?q=80&w=1200&auto=format&fit=crop",
+    "mediaType": "book",
+    "mediaUrl": "https://www.gutenberg.org/files/11/11-pdf.pdf"
+  },
+  {
+    "title": "SoundHelix Song 1",
+    "author": "SoundHelix",
+    "subject": "Music",
+    "year": 2010,
+    "code": "AUDIO-SH1",
+    "cover": "https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=1200&auto=format&fit=crop",
+    "mediaType": "audio",
+    "mediaUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
+  },
+  {
+    "title": "Big Buck Bunny (clip)",
+    "author": "Blender Foundation",
+    "subject": "Animation",
+    "year": 2008,
+    "code": "VIDEO-BBB",
+    "cover": "https://images.unsplash.com/photo-1529101091764-c3526daf38fe?q=80&w=1200&auto=format&fit=crop",
+    "mediaType": "video",
+    "mediaUrl": "https://www.w3schools.com/html/mov_bbb.mp4"
+  }
+]
