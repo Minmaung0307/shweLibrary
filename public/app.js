@@ -210,12 +210,22 @@ function renderBooks(){
   countBooks.textContent = list.length;
   bookCards.innerHTML = list.map(bookCard).join('');
 
-  $$('.card').forEach(card=>{
-    const id = card.dataset.id;
-    $('.act-open',card).addEventListener('click',()=>openItem(id));
-    $('.act-download',card).addEventListener('click',()=>downloadItem(id));
-    $('.act-edit',card)?.addEventListener('click',()=>editBook(id));
-  });
+  $$('#bookCards .card').forEach(card=>{
+  const id = card.dataset.id;
+  const openBtn = $('.act-open', card);
+  const dlBtn   = $('.act-download', card);
+  const editBtn = $('.act-edit', card);
+
+  openBtn && openBtn.addEventListener('click', () => openItem(id));
+  dlBtn   && dlBtn.addEventListener('click', () => downloadItem(id));
+  editBtn && editBtn.addEventListener('click', () => editBook(id));
+});
+  // $$('.card').forEach(card=>{
+  //   const id = card.dataset.id;
+  //   $('.act-open',card).addEventListener('click',()=>openItem(id));
+  //   $('.act-download',card).addEventListener('click',()=>downloadItem(id));
+  //   $('.act-edit',card)?.addEventListener('click',()=>editBook(id));
+  // });
 }
 
 [q, subjectFilter, yearFilter, typeFilter].forEach(el=>el.addEventListener('input', ()=>{
