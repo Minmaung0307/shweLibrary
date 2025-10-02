@@ -80,3 +80,69 @@ button:disabled{opacity:.6;cursor:not-allowed}
 @media (max-width: 640px){
   .cards{grid-template-columns:1fr}
 }
+
+/* ===== Responsive Enhancements (drop-in, non-breaking) ===== */
+
+/* Fluid base type (prevents iOS zoom on inputs) */
+html { font-size: clamp(14px, 0.9vw + 12px, 18px); }
+
+/* Respect safe areas (iPhone notch) */
+.topbar { padding-top: calc(14px + env(safe-area-inset-top, 0px)); }
+.layout { padding-left: calc(18px + env(safe-area-inset-left, 0px));
+          padding-right: calc(18px + env(safe-area-inset-right, 0px)); }
+
+/* Make action buttons wrap neatly on small screens */
+.top-actions { flex-wrap: wrap; gap: 8px; }
+
+/* Touch-friendly targets */
+button, .link-btn, .input, select { min-height: 40px; }
+
+/* Cards: flexible cover height & better object-fit on tiny screens */
+.card .cover { aspect-ratio: 16 / 9; height: auto; }
+.card .cover img { object-fit: cover; }
+
+/* Dialogs: avoid overflow on short viewports */
+.modal-card { max-height: 92vh; overflow: auto; }
+
+/* Big PDF/Media reader keeps healthy height on mobile */
+.player-area { min-height: 60vh; }
+@media (max-width: 540px){
+  .player-area { min-height: 58vh; }
+}
+
+/* Admin form grid stacks on small screens */
+@media (max-width: 820px){
+  .grid2 { grid-template-columns: 1fr; }
+}
+
+/* Widen for desktops & tighten for tablets/phones without changing your 980/640 breakpoints */
+@media (min-width: 1280px){
+  .layout { max-width: 1320px; grid-template-columns: 300px 1fr; }
+  .cards { grid-template-columns: repeat(4, minmax(0,1fr)); }
+}
+@media (min-width: 1600px){
+  .layout { max-width: 1500px; }
+  .cards { grid-template-columns: repeat(5, minmax(0,1fr)); }
+}
+
+/* Smooth shrink step between your 980 and 640 rules */
+@media (max-width: 820px){
+  .layout { grid-template-columns: 1fr; gap: 16px; }
+  .cards  { grid-template-columns: repeat(2, minmax(0,1fr)); }
+}
+
+/* Ultra small phones */
+@media (max-width: 420px){
+  .cards { grid-template-columns: 1fr; }
+  .brand span { display: none; } /* keep logo, save space */
+}
+
+/* Inputs shouldn’t overflow narrow sidebars */
+.filters .input { width: 100%; }
+
+/* Reduce motion if user prefers */
+@media (prefers-reduced-motion: reduce){
+  * { scroll-behavior: auto !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}
+
+/* Keep your existing breakpoints intact (980 / 640 in original file). These additions only fill the gaps. */
