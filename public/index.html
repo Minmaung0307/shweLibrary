@@ -1,128 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>ShweLibrary</title>
-    <link rel="stylesheet" href="styles.css" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <!-- PWA -->
-    <link rel="manifest" href="manifest.webmanifest" />
-    <meta name="theme-color" content="#f59e0b" />
-  </head>
-  <body>
-    <!-- Topbar -->
-    <header class="topbar">
-      <div class="brand">
-        <svg
-          width="28"
-          height="28"
-          viewBox="0 0 24 24"
-          fill="currentColor"
-          aria-hidden="true"
-        >
-          <path
-            d="M4 5a2 2 0 0 1 2-2h11a3 3 0 0 1 3 3v13.5a.5.5 0 0 1-.78.41L16 18.5l-3.22 1.91a.5.5 0 0 1-.56 0L9 18.5l-3.22 1.91A.5.5 0 0 1 5 19.5V5a2 2 0 0 1-1-1Zm2 0v12.88l2.72-1.61a.5.5 0 0 1 .56 0L12 18.7l2.72-2.43a.5.5 0 0 1 .56 0L18 17.88V6a1 1 0 0 0-1-1H6Z"
-          />
-        </svg>
-        <span>ShweLib</span>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ShweLibrary</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- PWA -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#f59e0b">
+</head>
+<body>
+  <!-- Topbar -->
+  <header class="topbar">
+    <div class="brand">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 5a2 2 0 0 1 2-2h11a3 3 0 0 1 3 3v13.5a.5.5 0 0 1-.78.41L16 18.5l-3.22 1.91a.5.5 0 0 1-.56 0L9 18.5l-3.22 1.91A.5.5 0 0 1 5 19.5V5a2 2 0 0 1-1-1Zm2 0v12.88l2.72-1.61a.5.5 0 0 1 .56 0L12 18.7l2.72-2.43a.5.5 0 0 1 .56 0L18 17.88V6a1 1 0 0 0-1-1H6Z"/></svg>
+      <span>LibMM</span>
+    </div>
+    <div class="top-actions">
+      <button id="toggleTheme" class="ghost">🌙</button>
+      <div id="userArea" class="user-area hidden">
+        <span id="userName"></span>
+        <span class="badge" id="userRole">member</span>
+        <button id="logoutBtn" class="ghost">Sign out</button>
       </div>
-      <div class="top-actions">
-        <button id="toggleTheme" class="ghost">🌙</button>
-        <div id="userArea" class="user-area hidden">
-          <span id="userName"></span>
-          <span class="badge" id="userRole">member</span>
-          <button id="logoutBtn" class="ghost">Sign out</button>
-        </div>
-        <button id="openAuth" class="primary">Sign in</button>
-      </div>
-    </header>
+      <button id="openAuth" class="primary">Sign in</button>
+    </div>
+    <!-- === PWA Install & Activity Panel triggers (non-breaking) === -->
+<div id="pwaInstallWrap" style="position:fixed; right:16px; bottom:16px; z-index:9999; display:none;">
+  <button id="btnInstall" class="btn card" style="padding:10px 14px; border-radius:12px;">
+    📲 Install App
+  </button>
+</div>
 
-    <!-- Main Layout -->
-    <div class="layout">
-      <aside class="sidebar">
-        <div class="section">
-          <div class="section-title">Search</div>
-          <input
-            id="q"
-            class="input"
-            placeholder="Search by title, author, subject..."
-          />
-          <div class="filters">
-            <select id="typeFilter" class="input">
-              <option value="">All Types</option>
-              <option value="book">Books (PDF)</option>
-              <option value="audio">Audio</option>
-              <option value="video">Video</option>
-            </select>
-            <select id="subjectFilter" class="input">
-              <option value="">All Subjects</option>
-            </select>
-            <select id="yearFilter" class="input">
-              <option value="">All Years</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="section">
-          <div class="section-title">Recommendations</div>
-          <ol id="recoList" class="reco"></ol>
-        </div>
-
-        <div class="section admin-only hidden">
-          <div class="section-title">Admin</div>
-          <button id="openNewBook" class="primary w-full">
-            ➕ Add New Item
-          </button>
-          <button id="addDemo" class="ghost w-full">✨ Add Demo Items</button>
-          <button id="exportJson" class="ghost w-full">⬇️ Export JSON</button>
-          <label class="upload w-full">
-            ⬆️ Import JSON
-            <input
-              id="importJson"
-              type="file"
-              accept="application/json"
-              hidden
-            />
-          </label>
-        </div>
-        <div
-          id="pwaInstallWrap"
-          style="
-            position: fixed;
-            right: 16px;
-            bottom: 16px;
-            z-index: 9999;
-            display: none;
-          "
-        >
-          <button
-            id="btnInstall"
-            class="btn card"
-            style="padding: 10px 14px; border-radius: 12px"
-          >
-            📲 Install App
-          </button>
-        </div>
-      </aside>
-
-      <main class="content">
-        <div class="toolbar">
-          <div class="count"><span id="countBooks">0</span> items</div>
-        </div>
-
-        <div class="cards" id="bookCards"></div>
-
-        <!-- <div class="section">
-        <div class="section-title">Activity</div>
-        <ul id="activity" class="activity"></ul>
-      </div> -->
-        <!-- Activity section - minimal markup (layout မခွဲဘဲ card တစ်ချပ်) -->
-        <!-- <section id="activityPanel" class="card" style="margin:18px 0;">
+<!-- Activity section - minimal markup (layout မခွဲဘဲ card တစ်ချပ်) -->
+<section id="activityPanel" class="card" style="margin:18px 0;">
   <h2 style="margin-bottom:8px;">📜 Activity</h2>
   <div style="display:flex; gap:18px; flex-wrap:wrap;">
     <div style="flex:1 1 320px; min-width:280px;">
@@ -134,140 +47,141 @@
       <div id="activityHistory" class="activity-history"></div>
     </div>
   </div>
-</section> -->
-      </main>
-    </div>
+</section>
+  </header>
 
-    <!-- Auth Modal -->
-    <dialog id="authModal" class="modal">
-      <form method="dialog" class="modal-card" id="authForm">
-        <div class="modal-header">
-          <h3 id="authTitle">Welcome</h3>
-          <button class="ghost" id="closeAuth" type="button">✕</button>
-        </div>
-
-        <div class="tabs">
-          <button class="tab active" data-tab="signin" type="button">
-            Sign in
-          </button>
-          <button class="tab" data-tab="signup" type="button">
-            Create account
-          </button>
-        </div>
-
-        <div class="tab-panel" id="panel-signin">
-          <input
-            class="input"
-            id="inEmail"
-            type="email"
-            placeholder="Email"
-            required
-          />
-          <input
-            class="input"
-            id="inPass"
-            type="password"
-            placeholder="Password"
-            required
-          />
-          <button class="primary w-full" id="signinBtn" type="submit">
-            Sign in
-          </button>
-        </div>
-
-        <div class="tab-panel hidden" id="panel-signup">
-          <input class="input" id="upName" placeholder="Full name" required />
-          <input
-            class="input"
-            id="upEmail"
-            type="email"
-            placeholder="Email"
-            required
-          />
-          <input
-            class="input"
-            id="upPass"
-            type="password"
-            placeholder="Password (min 6)"
-            required
-          />
-          <button class="primary w-full" id="signupBtn" type="button">
-            Create account
-          </button>
-        </div>
-
-        <p class="hint">Sign in to see activity & recommendations.</p>
-      </form>
-    </dialog>
-
-    <!-- New/Edit Item Modal -->
-    <dialog id="bookModal" class="modal">
-      <form method="dialog" class="modal-card" id="bookForm">
-        <div class="modal-header">
-          <h3 id="bookModalTitle">New Item</h3>
-          <button class="ghost" id="closeBook" type="button">✕</button>
-        </div>
-        <div class="grid2">
-          <input class="input" id="bkTitle" placeholder="Title" required />
-          <input
-            class="input"
-            id="bkAuthor"
-            placeholder="Author / Artist"
-            required
-          />
-          <input class="input" id="bkSubject" placeholder="Subject" />
-          <input class="input" id="bkYear" type="number" placeholder="Year" />
-          <input class="input" id="bkCode" placeholder="Code (unique)" />
-          <select class="input" id="bkType">
-            <option value="book">Book (PDF)</option>
+  <!-- Main Layout -->
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="section">
+        <div class="section-title">Search</div>
+        <input id="q" class="input" placeholder="Search by title, author, subject..." />
+        <div class="filters">
+          <select id="typeFilter" class="input">
+            <option value="">All Types</option>
+            <option value="book">Books (PDF)</option>
             <option value="audio">Audio</option>
             <option value="video">Video</option>
           </select>
-          <input
-            class="input"
-            id="bkCover"
-            placeholder="Cover/Poster URL (optional)"
-          />
-          <input
-            class="input"
-            id="bkMedia"
-            placeholder="Media URL (PDF/MP3/MP4…)"
-          />
-        </div>
-        <div class="row end">
-          <button class="ghost" type="button" id="delBookBtn">Delete</button>
-          <button class="primary" id="saveBookBtn">Save</button>
-        </div>
-        <input type="hidden" id="bkId" />
-      </form>
-    </dialog>
-
-    <!-- Reader Modal (PDF/Audio/Video) -->
-    <dialog id="pdfModal" class="modal">
-      <div class="modal-card modal-card--pdf">
-        <div class="modal-header modal-header--sticky">
-          <h3 id="pdfTitle">Reader</h3>
-          <div class="row">
-            <a
-              id="openExternal"
-              class="ghost link-btn"
-              target="_blank"
-              rel="noopener"
-              >Open in new tab</a
-            >
-            <button class="ghost" id="closePdf" type="button">✕</button>
-          </div>
-        </div>
-        <div id="playerArea" class="player-area">
-          <!-- injected: iframe/audio/video -->
+          <select id="subjectFilter" class="input">
+            <option value="">All Subjects</option>
+          </select>
+          <select id="yearFilter" class="input">
+            <option value="">All Years</option>
+          </select>
         </div>
       </div>
-    </dialog>
 
-    <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore-compat.js"></script>
-    <script src="firebase.js"></script>
-    <script type="module" src="app.js"></script>
-  </body>
+      <div class="section">
+        <div class="section-title">Recommendations</div>
+        <ol id="recoList" class="reco"></ol>
+      </div>
+
+      <div class="section admin-only hidden">
+        <div class="section-title">Admin</div>
+        <button id="openNewBook" class="primary w-full">➕ Add New Item</button>
+        <button id="addDemo" class="ghost w-full">✨ Add Demo Items</button>
+        <button id="exportJson" class="ghost w-full">⬇️ Export JSON</button>
+        <label class="upload w-full">
+          ⬆️ Import JSON
+          <input id="importJson" type="file" accept="application/json" hidden />
+        </label>
+      </div>
+    </aside>
+
+    <main class="content">
+      <div class="toolbar">
+        <div class="count"><span id="countBooks">0</span> items</div>
+      </div>
+
+      <div class="cards" id="bookCards"></div>
+
+      <div class="section">
+        <div class="section-title">Activity</div>
+        <ul id="activity" class="activity"></ul>
+      </div>
+    </main>
+  </div>
+
+  <!-- Auth Modal -->
+  <dialog id="authModal" class="modal">
+    <form method="dialog" class="modal-card" id="authForm">
+      <div class="modal-header">
+        <h3 id="authTitle">Welcome</h3>
+        <button class="ghost" id="closeAuth" type="button">✕</button>
+      </div>
+
+      <div class="tabs">
+        <button class="tab active" data-tab="signin" type="button">Sign in</button>
+        <button class="tab" data-tab="signup" type="button">Create account</button>
+      </div>
+
+      <div class="tab-panel" id="panel-signin">
+        <input class="input" id="inEmail" type="email" placeholder="Email" required />
+        <input class="input" id="inPass" type="password" placeholder="Password" required />
+        <button class="primary w-full" id="signinBtn" type="submit">Sign in</button>
+      </div>
+
+      <div class="tab-panel hidden" id="panel-signup">
+        <input class="input" id="upName" placeholder="Full name" required />
+        <input class="input" id="upEmail" type="email" placeholder="Email" required />
+        <input class="input" id="upPass" type="password" placeholder="Password (min 6)" required />
+        <button class="primary w-full" id="signupBtn" type="button">Create account</button>
+      </div>
+
+      <p class="hint">Sign in to see activity & recommendations.</p>
+    </form>
+  </dialog>
+
+  <!-- New/Edit Item Modal -->
+  <dialog id="bookModal" class="modal">
+    <form method="dialog" class="modal-card" id="bookForm">
+      <div class="modal-header">
+        <h3 id="bookModalTitle">New Item</h3>
+        <button class="ghost" id="closeBook" type="button">✕</button>
+      </div>
+      <div class="grid2">
+        <input class="input" id="bkTitle" placeholder="Title" required />
+        <input class="input" id="bkAuthor" placeholder="Author / Artist" required />
+        <input class="input" id="bkSubject" placeholder="Subject" />
+        <input class="input" id="bkYear" type="number" placeholder="Year" />
+        <input class="input" id="bkCode" placeholder="Code (unique)" />
+        <select class="input" id="bkType">
+          <option value="book">Book (PDF)</option>
+          <option value="audio">Audio</option>
+          <option value="video">Video</option>
+        </select>
+        <input class="input" id="bkCover" placeholder="Cover/Poster URL (optional)" />
+        <input class="input" id="bkMedia" placeholder="Media URL (PDF/MP3/MP4…)" />
+      </div>
+      <div class="row end">
+        <button class="ghost" type="button" id="delBookBtn">Delete</button>
+        <button class="primary" id="saveBookBtn">Save</button>
+      </div>
+      <input type="hidden" id="bkId" />
+    </form>
+  </dialog>
+
+  <!-- Reader Modal (PDF/Audio/Video) -->
+  <dialog id="pdfModal" class="modal">
+    <div class="modal-card modal-card--pdf">
+      <div class="modal-header modal-header--sticky">
+        <h3 id="pdfTitle">Reader</h3>
+        <div class="row">
+          <a id="openExternal" class="ghost link-btn" target="_blank" rel="noopener">Open in new tab</a>
+          <button class="ghost" id="closePdf" type="button">✕</button>
+        </div>
+      </div>
+      <div id="playerArea" class="player-area">
+        <!-- injected: iframe/audio/video -->
+      </div>
+    </div>
+  </dialog>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore-compat.js"></script>
+  <script src="firebase.js"></script>
+  <script src="app.js"></script>
+</body>
 </html>

@@ -1,8 +1,3 @@
-// firebase.js (MODULAR CLEAN VERSION)
-import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
-import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
-
 // Fill your own Firebase config here
 const firebaseConfig = {
   apiKey: "AIzaSyBn6f6vIq3pKTsMlLYVlC-bqhxxsecP3IM",
@@ -14,18 +9,8 @@ const firebaseConfig = {
   measurementId: "G-5052Y9PC0P"
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const auth = getAuth(app);
-
-// 🛡️ Guard: only connect emulator once in dev
-if (!window.__FS_ONCE__) {
-  window.__FS_ONCE__ = true;
-  if (location.hostname === "localhost") {
-    connectFirestoreEmulator(db, "localhost", 8080);
-  }
-}
-
-// Export to app.js
-export { db, auth };
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+db.settings({ experimentalForceLongPolling: true, useFetchStreams: false });
+window._auth = firebase.auth();
+window._db = db;
