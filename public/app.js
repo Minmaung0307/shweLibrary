@@ -213,7 +213,7 @@ function renderBooks(){
   countBooks.textContent = list.length;
   bookCards.innerHTML = list.map(bookCard).join('');
 
-  $$('#bookCards .card').forEach(card=>{
+  $$('#bookCards .card').forEach(card => {
   const id = card.dataset.id;
   const openBtn = $('.act-open', card);
   const dlBtn   = $('.act-download', card);

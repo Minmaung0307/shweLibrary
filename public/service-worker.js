@@ -28,22 +28,33 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   const req = event.request;
-  // Network-first for HTML, cache-first for others
+
+  // 🛡️  Ignore non-GET requests completely (fixes the POST put error)
+  if (req.method !== 'GET') return;
+
+  // Network-first for navigations (HTML)
   if (req.mode === 'navigate' || (req.headers.get('accept') || '').includes('text/html')) {
     event.respondWith(
       fetch(req).then((res) => {
-        const clone = res.clone();
-        caches.open(CACHE_NAME).then(cache => cache.put(req, clone));
+        // cache only if OK/basic
+        if (res && res.ok && res.type === 'basic') {
+          const clone = res.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(req, clone));
+        }
         return res;
       }).catch(() => caches.match(req).then(m => m || caches.match('./index.html')))
     );
-  } else {
-    event.respondWith(
-      caches.match(req).then(cached => cached || fetch(req).then((res) => {
+    return;
+  }
+
+  // Cache-first for static GET
+  event.respondWith(
+    caches.match(req).then(cached => cached || fetch(req).then((res) => {
+      if (res && res.ok && res.type === 'basic') {
         const clone = res.clone();
         caches.open(CACHE_NAME).then(cache => cache.put(req, clone));
-        return res;
-      }).catch(() => cached))
-    );
-  }
+      }
+      return res;
+    }).catch(() => cached))
+  );
 });
