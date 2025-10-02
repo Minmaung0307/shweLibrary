@@ -160,3 +160,6 @@ button, .link-btn, .input, select { min-height: 40px; }
   .topbar{ padding:12px 14px }
   .topbar .brand span{ display:none } /* mobile: icon only */
 }
+#btnInstall {
+  color: #f9b303;
+}
