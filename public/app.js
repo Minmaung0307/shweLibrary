@@ -1,3 +1,6 @@
+// app.js
+import { db, auth } from "./firebase.js";
+
 // ===== Utilities =====
 const $ = (sel, root=document) => root.querySelector(sel);
 const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
@@ -91,7 +94,7 @@ closeAuth.addEventListener('click',()=>authModal.close());
 signinBtn.addEventListener('click', async (e)=>{
   e.preventDefault();
   try{
-    await _auth.signInWithEmailAndPassword(inEmail.value.trim(), inPass.value.trim());
+    await auth.signInWithEmailAndPassword(inEmail.value.trim(), inPass.value.trim());
     authModal.close();
   }catch(err){ alert(err.message); }
 });
@@ -103,7 +106,7 @@ signupBtn.addEventListener('click', async ()=>{
     const name = upName.value.trim();
     const {user} = await _auth.createUserWithEmailAndPassword(email, pass);
     await user.updateProfile({displayName:name});
-    await _db.collection('users').doc(user.uid).set({
+    await db.collection('users').doc(user.uid).set({
       uid:user.uid, displayName:name, email, role:'member', createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
     alert('Account created! You can sign in now.');
