@@ -7,6 +7,9 @@
   <link rel="stylesheet" href="styles.css" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- PWA -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#f59e0b">
 </head>
 <body>
   <!-- Topbar -->
@@ -16,17 +19,35 @@
       <span>LibMM</span>
     </div>
     <div class="top-actions">
-      <!-- <button id="toggleTheme" class="ghost">🌙</button> -->
+      <button id="toggleTheme" class="ghost">🌙</button>
       <div id="userArea" class="user-area hidden">
         <span id="userName"></span>
         <span class="badge" id="userRole">member</span>
-        <button id="toggleTheme" class="ghost">🌙</button>
-      </div>
-      <div id="userArea" class="user-area hidden">
         <button id="logoutBtn" class="ghost">Sign out</button>
       </div>
       <button id="openAuth" class="primary">Sign in</button>
     </div>
+    <!-- === PWA Install & Activity Panel triggers (non-breaking) === -->
+<div id="pwaInstallWrap" style="position:fixed; right:16px; bottom:16px; z-index:9999; display:none;">
+  <button id="btnInstall" class="btn card" style="padding:10px 14px; border-radius:12px;">
+    📲 Install App
+  </button>
+</div>
+
+<!-- Activity section - minimal markup (layout မခွဲဘဲ card တစ်ချပ်) -->
+<section id="activityPanel" class="card" style="margin:18px 0;">
+  <h2 style="margin-bottom:8px;">📜 Activity</h2>
+  <div style="display:flex; gap:18px; flex-wrap:wrap;">
+    <div style="flex:1 1 320px; min-width:280px;">
+      <h3>Today</h3>
+      <ul id="activityToday" class="activity-list"></ul>
+    </div>
+    <div style="flex:2 1 420px; min-width:320px;">
+      <h3>History</h3>
+      <div id="activityHistory" class="activity-history"></div>
+    </div>
+  </div>
+</section>
   </header>
 
   <!-- Main Layout -->
