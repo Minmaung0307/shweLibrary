@@ -150,31 +150,3 @@ button, .link-btn, .input, select { min-height: 40px; }
 /* === PWA & Activity add-ons (non-breaking) === */
 #pwaInstallWrap .btn { cursor: pointer; box-shadow: 0 6px 18px rgba(0,0,0,.12); }
 #pwaInstallWrap .btn:active { transform: translateY(1px); }
-
-.activity-list { list-style: none; padding-left: 0; margin: 0; }
-.activity-list li { padding: 8px 10px; border: 1px solid rgba(0,0,0,0.06); border-radius: 8px; margin-bottom: 8px; }
-
-.activity-history .day {
-  border: 1px solid rgba(0,0,0,0.06);
-  border-radius: 10px; padding: 10px; margin-bottom: 10px;
-}
-.activity-history .day h4 { margin: 0 0 6px 0; font-size: 1rem; opacity: .8; }
-.activity-history .day ul { list-style: none; padding-left: 0; margin: 0; }
-.activity-history .day li { padding: 6px 8px; border-radius: 6px; background: rgba(0,0,0,.03); margin-bottom: 6px; }
-
-/* === Topbar tidy & Activity panel flow (non-breaking) === */
-.topbar { flex-wrap: wrap; align-items: center; gap: 10px; }
-
-#activityPanel {
-  width: 100%;
-  order: 2;              /* header second row */
-  margin: 12px 0 0 0;
-  background: var(--panel);
-  border: 1px solid rgba(255,255,255,.06);
-  border-radius: 16px;
-}
-
-@media (min-width: 981px){
-  /* desktop/tablet တွေမှာလည်း အောက်တန်းမှာပဲ */
-  #activityPanel { order: 2; }
-}

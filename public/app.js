@@ -528,128 +528,128 @@ addDemo?.addEventListener('click', async ()=>{
          You can call window.trackActivity('opened_pdf', {title})
          anywhere in your current code. Also logs 'app_open' on load.
 */
-(function activityLog(){
-  const LS_KEY = 'activityLog';
-  const todayUL = document.getElementById('activityToday');
-  const historyBox = document.getElementById('activityHistory');
+// (function activityLog(){
+//   const LS_KEY = 'activityLog';
+//   const todayUL = document.getElementById('activityToday');
+//   const historyBox = document.getElementById('activityHistory');
 
-  function toDateKey(ts){
-    const d = new Date(ts);
-    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-  }
-  function fmtTime(ts){
-    const d = new Date(ts);
-    return d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-  }
-  function loadLog(){
-    try { return JSON.parse(localStorage.getItem(LS_KEY) || '[]'); }
-    catch(e){ return []; }
-  }
-  function saveLog(arr){
-    localStorage.setItem(LS_KEY, JSON.stringify(arr));
-  }
-  function add(type, meta){
-    const entry = {
-      ts: Date.now(),
-      type,
-      meta: meta || {},
-    };
-    const arr = loadLog();
-    arr.push(entry);
-    // Keep last 1000 entries to avoid bloat
-    while (arr.length > 1000) arr.shift();
-    saveLog(arr);
-    render(); // update view
-  }
+//   function toDateKey(ts){
+//     const d = new Date(ts);
+//     return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+//   }
+//   function fmtTime(ts){
+//     const d = new Date(ts);
+//     return d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+//   }
+//   function loadLog(){
+//     try { return JSON.parse(localStorage.getItem(LS_KEY) || '[]'); }
+//     catch(e){ return []; }
+//   }
+//   function saveLog(arr){
+//     localStorage.setItem(LS_KEY, JSON.stringify(arr));
+//   }
+//   function add(type, meta){
+//     const entry = {
+//       ts: Date.now(),
+//       type,
+//       meta: meta || {},
+//     };
+//     const arr = loadLog();
+//     arr.push(entry);
+//     // Keep last 1000 entries to avoid bloat
+//     while (arr.length > 1000) arr.shift();
+//     saveLog(arr);
+//     render(); // update view
+//   }
 
-  // Group by date
-  function groupByDate(arr){
-    const map = {};
-    arr.forEach(e => {
-      const k = toDateKey(e.ts);
-      (map[k] = map[k] || []).push(e);
-    });
-    return map;
-  }
+//   // Group by date
+//   function groupByDate(arr){
+//     const map = {};
+//     arr.forEach(e => {
+//       const k = toDateKey(e.ts);
+//       (map[k] = map[k] || []).push(e);
+//     });
+//     return map;
+//   }
 
-  function labelOf(e){
-    const meta = e.meta || {};
-    // Basic labels in Burmese + English mixed
-    const M = (k, fallback='') => (meta && (meta[k]!==undefined)) ? String(meta[k]) : fallback;
-    switch (e.type) {
-      case 'app_open': return `App open (${fmtTime(e.ts)})`;
-      case 'pwa_install_prompt': return `PWA prompt: ${M('outcome','-')} (${fmtTime(e.ts)})`;
-      case 'pwa_installed': return `PWA installed (${fmtTime(e.ts)})`;
-      // Example types you may call manually:
-      case 'video_play': return `Video ▶ ${M('title','') || M('id','')}`;
-      case 'audio_play': return `Audio ▶ ${M('title','') || M('id','')}`;
-      case 'pdf_open': return `PDF 📄 ${M('title','') || M('id','')}`;
-      case 'item_open': return `Open ${M('id','')}`;
-      default: return `${e.type} (${fmtTime(e.ts)})`;
-    }
-  }
+//   function labelOf(e){
+//     const meta = e.meta || {};
+//     // Basic labels in Burmese + English mixed
+//     const M = (k, fallback='') => (meta && (meta[k]!==undefined)) ? String(meta[k]) : fallback;
+//     switch (e.type) {
+//       case 'app_open': return `App open (${fmtTime(e.ts)})`;
+//       case 'pwa_install_prompt': return `PWA prompt: ${M('outcome','-')} (${fmtTime(e.ts)})`;
+//       case 'pwa_installed': return `PWA installed (${fmtTime(e.ts)})`;
+//       // Example types you may call manually:
+//       case 'video_play': return `Video ▶ ${M('title','') || M('id','')}`;
+//       case 'audio_play': return `Audio ▶ ${M('title','') || M('id','')}`;
+//       case 'pdf_open': return `PDF 📄 ${M('title','') || M('id','')}`;
+//       case 'item_open': return `Open ${M('id','')}`;
+//       default: return `${e.type} (${fmtTime(e.ts)})`;
+//     }
+//   }
 
-  function render(){
-    if (!todayUL || !historyBox) return;
-    const arr = loadLog();
-    const byDate = groupByDate(arr);
+//   function render(){
+//     if (!todayUL || !historyBox) return;
+//     const arr = loadLog();
+//     const byDate = groupByDate(arr);
 
-    const todayKey = toDateKey(Date.now());
-    const todayList = byDate[todayKey] || [];
+//     const todayKey = toDateKey(Date.now());
+//     const todayList = byDate[todayKey] || [];
 
-    // Today
-    todayUL.innerHTML = '';
-    todayList.slice().reverse().forEach(e => {
-      const li = document.createElement('li');
-      li.textContent = labelOf(e);
-      todayUL.appendChild(li);
-    });
+//     // Today
+//     todayUL.innerHTML = '';
+//     todayList.slice().reverse().forEach(e => {
+//       const li = document.createElement('li');
+//       li.textContent = labelOf(e);
+//       todayUL.appendChild(li);
+//     });
 
-    // History (previous days only)
-    historyBox.innerHTML = '';
-    Object.keys(byDate)
-      .filter(k => k !== todayKey)
-      .sort() // ascending dates
-      .reverse() // latest day first
-      .forEach(k => {
-        const wrap = document.createElement('div');
-        wrap.className = 'day';
-        const h = document.createElement('h4');
-        h.textContent = k;
-        const ul = document.createElement('ul');
-        byDate[k].slice().reverse().forEach(e => {
-          const li = document.createElement('li');
-          li.textContent = labelOf(e);
-          ul.appendChild(li);
-        });
-        wrap.appendChild(h); wrap.appendChild(ul);
-        historyBox.appendChild(wrap);
-      });
-  }
+//     // History (previous days only)
+//     historyBox.innerHTML = '';
+//     Object.keys(byDate)
+//       .filter(k => k !== todayKey)
+//       .sort() // ascending dates
+//       .reverse() // latest day first
+//       .forEach(k => {
+//         const wrap = document.createElement('div');
+//         wrap.className = 'day';
+//         const h = document.createElement('h4');
+//         h.textContent = k;
+//         const ul = document.createElement('ul');
+//         byDate[k].slice().reverse().forEach(e => {
+//           const li = document.createElement('li');
+//           li.textContent = labelOf(e);
+//           ul.appendChild(li);
+//         });
+//         wrap.appendChild(h); wrap.appendChild(ul);
+//         historyBox.appendChild(wrap);
+//       });
+//   }
 
-  // Public API
-  window.trackActivity = add;
+//   // Public API
+//   window.trackActivity = add;
 
-  // Auto-log app open
-  add('app_open', { ua: navigator.userAgent });
+//   // Auto-log app open
+//   add('app_open', { ua: navigator.userAgent });
 
-  // Render once on load (in case there were old logs)
-  render();
+//   // Render once on load (in case there were old logs)
+//   render();
 
-  // Optional: Auto-log any element with data-activity="type"
-  document.addEventListener('click', (ev) => {
-    const el = ev.target.closest('[data-activity]');
-    if (!el) return;
-    try {
-      const type = el.getAttribute('data-activity') || 'click';
-      const meta = {};
-      for (const a of el.attributes) {
-        if (a.name.startsWith('data-')) {
-          const key = a.name.replace(/^data-/, '');
-          if (key !== 'activity') meta[key] = a.value;
-        }
-      }
-      add(type, meta);
-    } catch(e){}
-  });
-})();
+//   // Optional: Auto-log any element with data-activity="type"
+//   document.addEventListener('click', (ev) => {
+//     const el = ev.target.closest('[data-activity]');
+//     if (!el) return;
+//     try {
+//       const type = el.getAttribute('data-activity') || 'click';
+//       const meta = {};
+//       for (const a of el.attributes) {
+//         if (a.name.startsWith('data-')) {
+//           const key = a.name.replace(/^data-/, '');
+//           if (key !== 'activity') meta[key] = a.value;
+//         }
+//       }
+//       add(type, meta);
+//     } catch(e){}
+//   });
+// })();
