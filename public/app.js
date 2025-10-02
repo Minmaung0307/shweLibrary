@@ -64,6 +64,8 @@ const openExternal = byId('openExternal');
 
 const toggleTheme = byId('toggleTheme');
 
+function safeSetHTML(el, html){ if(el) el.innerHTML = html; }
+
 // ===== Theme Toggle =====
 let dark=true;
 toggleTheme.addEventListener('click',()=>{
@@ -210,12 +212,16 @@ function renderBooks(){
   countBooks.textContent = list.length;
   bookCards.innerHTML = list.map(bookCard).join('');
 
-  $$('.card').forEach(card=>{
-    const id = card.dataset.id;
-    $('.act-open',card).addEventListener('click',()=>openItem(id));
-    $('.act-download',card).addEventListener('click',()=>downloadItem(id));
-    $('.act-edit',card)?.addEventListener('click',()=>editBook(id));
-  });
+  $$('#bookCards .card').forEach(card=>{
+  const id = card.dataset.id;
+  const openBtn = $('.act-open', card);
+  const dlBtn   = $('.act-download', card);
+  const editBtn = $('.act-edit', card);
+
+  openBtn && openBtn.addEventListener('click', () => openItem(id));
+  dlBtn   && dlBtn.addEventListener('click', () => downloadItem(id));
+  editBtn && editBtn.addEventListener('click', () => editBook(id));
+});
 }
 
 [q, subjectFilter, yearFilter, typeFilter].forEach(el=>el.addEventListener('input', ()=>{
@@ -387,7 +393,7 @@ async function loadActivity(){
         <strong>${r.bookTitle||''}</strong>
         <span class="when">${r.ts?.toDate ? fmt(r.ts.toDate()) : ''}</span>
       </li>`).join('');
-  }catch(e){ activityEl.innerHTML = ''; }
+  }catch(e){ safeSetHTML(activityEl, ''); }
 }
 
 // ===== Recommendations =====
@@ -401,11 +407,13 @@ async function loadRecommendations(){
       count.set(key, (count.get(key)||0)+1);
     });
     const top = Array.from(count.entries()).sort((a,b)=>b[1]-a[1]).slice(0,5);
-    recoList.innerHTML = top.map(([k,n])=>{
+    safeSetHTML(recoList, top.map(([k,n])=>{
       const [title, t] = k.split('||');
       return `<li>${title} <span class="badge">${t}</span> <span class="badge">${n}</span></li>`;
-    }).join('');
-  }catch(e){ recoList.innerHTML = ''; }
+    }).join(''));
+  }catch(e){
+    safeSetHTML(recoList, '');
+  }
 }
 
 // ===== Import / Export =====

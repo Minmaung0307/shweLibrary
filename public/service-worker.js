@@ -28,22 +28,30 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   const req = event.request;
-  // Network-first for HTML, cache-first for others
+
+  // 🛡️ Ignore non-GET requests (fixes "Request method 'POST' is unsupported")
+  if (req.method !== 'GET') return;
+
   if (req.mode === 'navigate' || (req.headers.get('accept') || '').includes('text/html')) {
     event.respondWith(
-      fetch(req).then((res) => {
-        const clone = res.clone();
-        caches.open(CACHE_NAME).then(cache => cache.put(req, clone));
+      fetch(req).then(res => {
+        if (res && res.ok && res.type === 'basic') {
+          const clone = res.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(req, clone));
+        }
         return res;
       }).catch(() => caches.match(req).then(m => m || caches.match('./index.html')))
     );
-  } else {
-    event.respondWith(
-      caches.match(req).then(cached => cached || fetch(req).then((res) => {
+    return;
+  }
+
+  event.respondWith(
+    caches.match(req).then(cached => cached || fetch(req).then(res => {
+      if (res && res.ok && res.type === 'basic') {
         const clone = res.clone();
         caches.open(CACHE_NAME).then(cache => cache.put(req, clone));
-        return res;
-      }).catch(() => cached))
-    );
-  }
+      }
+      return res;
+    }).catch(() => cached))
+  );
 });
