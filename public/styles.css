@@ -150,3 +150,13 @@ button, .link-btn, .input, select { min-height: 40px; }
 /* === PWA & Activity add-ons (non-breaking) === */
 #pwaInstallWrap .btn { cursor: pointer; box-shadow: 0 6px 18px rgba(0,0,0,.12); }
 #pwaInstallWrap .btn:active { transform: translateY(1px); }
+
+/* Topbar polish (compact & clean) */
+.topbar{ gap:12px; }
+.topbar .brand svg{ opacity:.95 }
+.topbar .brand span{ font-weight:700; letter-spacing:.2px }
+.topbar .top-actions{ flex-wrap:wrap; gap:8px }
+@media (max-width:640px){
+  .topbar{ padding:12px 14px }
+  .topbar .brand span{ display:none } /* mobile: icon only */
+}

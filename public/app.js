@@ -64,6 +64,9 @@ const openExternal = byId('openExternal');
 
 const toggleTheme = byId('toggleTheme');
 
+// SAFE helper
+function safeSetHTML(el, html){ if (el) el.innerHTML = html; }
+
 // ===== Theme Toggle =====
 let dark=true;
 toggleTheme.addEventListener('click',()=>{
@@ -126,12 +129,12 @@ _auth.onAuthStateChanged(async (u)=>{
     await loadRecommendations();
   }else{
     currentUser = null;
-    userArea.classList.add('hidden');
-    openAuth.classList.remove('hidden');
-    renderAdminUI();
-    await loadBooks();
-    activityEl.innerHTML = '';
-    recoList.innerHTML = '';
+  userArea.classList.add('hidden');
+  openAuth.classList.remove('hidden');
+  renderAdminUI();
+  await loadBooks();
+  safeSetHTML(activityEl, '');
+  safeSetHTML(recoList, '');
   }
 });
 
@@ -387,6 +390,7 @@ async function downloadItem(id){
 
 // ===== Activity Feed =====
 async function loadActivity(){
+  if (!activityEl) return; // element မရှိတော့ -> လုံးဝမလုပ်
   try{
     const snap = await _db.collection('borrows').orderBy('ts','desc').limit(30).get();
     const rows = snap.docs.map(d=>d.data());
@@ -397,7 +401,9 @@ async function loadActivity(){
         <strong>${r.bookTitle||''}</strong>
         <span class="when">${r.ts?.toDate ? fmt(r.ts.toDate()) : ''}</span>
       </li>`).join('');
-  }catch(e){ activityEl.innerHTML = ''; }
+  }catch(e){
+    safeSetHTML(activityEl, ''); // guard
+  }
 }
 
 // ===== Recommendations =====
@@ -411,11 +417,11 @@ async function loadRecommendations(){
       count.set(key, (count.get(key)||0)+1);
     });
     const top = Array.from(count.entries()).sort((a,b)=>b[1]-a[1]).slice(0,5);
-    recoList.innerHTML = top.map(([k,n])=>{
+    safeSetHTML(recoList, top.map(([k,n])=>{
       const [title, t] = k.split('||');
       return `<li>${title} <span class="badge">${t}</span> <span class="badge">${n}</span></li>`;
-    }).join('');
-  }catch(e){ recoList.innerHTML = ''; }
+    }).join(''));
+  }catch(e){ safeSetHTML(recoList, ''); }
 }
 
 // ===== Import / Export =====
