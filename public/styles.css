@@ -172,3 +172,52 @@ button, .link-btn, .input, select { min-height: 40px; }
 .activity-history .day h4 { margin: 0 0 6px 0; font-size: 1rem; opacity: .8; }
 .activity-history .day ul { list-style: none; padding-left: 0; margin: 0; }
 .activity-history .day li { padding: 6px 8px; border-radius: 6px; background: rgba(0,0,0,.03); margin-bottom: 6px; }
+
+/* === Card footer layout: Primary on first row, Download & Edit on second === */
+/* Make footer sit at the bottom consistently */
+.card { display: flex; flex-direction: column; }            /* already true but safe */
+.card .body { flex: 1; }                                     /* pushes footer down */
+.card .footer { margin-top: auto; }                          /* stick to bottom */
+
+/* Grid layout for the 3 buttons */
+.card .footer{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-areas:
+    "primary primary"
+    "download edit";
+  gap: 8px;
+  padding: 12px 14px 16px;                                   /* keep your padding */
+}
+
+/* Map each button into a grid area */
+.card .footer .act-open      { grid-area: primary; }
+.card .footer .act-download  { grid-area: download; }
+.card .footer .act-edit      { grid-area: edit; }
+
+/* Center the labels inside every button */
+.card .footer button{
+  display: inline-flex;                                      /* you already use this */
+  align-items: center;
+  justify-content: center;                                   /* <-- center text */
+  min-width: 0;                                              /* prevent overflow */
+  white-space: nowrap;
+}
+
+/* If Edit is hidden/absent (non-admin), make Download span full width on row 2 */
+.card .footer:has(.act-download):not(:has(.act-edit)){
+  grid-template-columns: 1fr;
+  grid-template-areas:
+    "primary"
+    "download";
+}
+
+/* Small screens — keep the same 2-row structure cleanly */
+@media (max-width: 560px){
+  .card .footer{
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "primary primary"
+      "download edit";
+  }
+}
